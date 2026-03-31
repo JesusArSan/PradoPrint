@@ -70,7 +70,7 @@ for (const [i, url] of lista_urls.entries()) {
 }
 
 await writeFile('productos.json', JSON.stringify(productos, null, 2));
-console.log(`\n✅ Guardados ${productos.length} productos en productos.json`);
-console.log(`🖼  Imágenes en carpeta imagenes/`);
+console.log(`\nGuardados ${productos.length} productos en productos.json`);
+console.log(`Imágenes en carpeta imagenes/`);
 
 await browser.close();
