@@ -98,13 +98,13 @@ El archivo `.env` necesita estas variables:
 ```env
 PORT=3000
 
-POSTGRES_USER=yo
-POSTGRES_PASSWORD=una_clave_muy_segura_123
+POSTGRES_USER=user
+POSTGRES_PASSWORD=clave123
 POSTGRES_DB=ssbw
-DATABASE_URL=postgresql://yo:una_clave_muy_segura_123@localhost:5432/ssbw?schema=public
+DATABASE_URL=postgresql://user:clave123@localhost:5432/ssbw?schema=public
 
-SESSION_SECRET=una_clave_secreta_muy_larga_123
-SECRET_KEY=una_clave_jwt_muy_secreta_456
+SESSION_SECRET=clave123
+SECRET_KEY=clave_jwt_123
 ```
 
 ---
