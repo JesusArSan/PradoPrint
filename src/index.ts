@@ -16,7 +16,7 @@ import { errorHandler } from './middleware/errorHandler';
 import productosRouter from './routes/productos';
 import usuariosRouter from './routes/usuarios';
 import apiProductosRouter from './apis/productos';
- 
+
 const app = express();
 
 // ============== CONFIGURACIÓN ==============
