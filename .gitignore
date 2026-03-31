@@ -1,0 +1,65 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build & Distribution
+dist/
+build/
+.next/
+out/
+
+# Development
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/settings.json
+.idea/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Database
+*.sqlite
+*.sqlite3
+.prisma/
+
+# Generated files
+generated/
+prisma/generated/
+
+# Data & Media (keep in dev, ignore on push)
+imagenes/
+data/productos.json
+
+# Cache
+.cache/
+.turbo/
+
+# Testing
+coverage/
+.nyc_output/
+
+# OS specific
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Docker
+.dockerignore
+docker-compose.override.yml

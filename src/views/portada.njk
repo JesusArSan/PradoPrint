@@ -1,0 +1,38 @@
+{% extends "base.njk" %}
+
+{% block content %}
+
+    {# Si hay búsqueda activa mostramos cuántos resultados salieron #}
+    {% if busqueda %}
+        <h5 class="mb-4 text-muted">
+            {{ cards | length }} resultado{% if cards | length != 1 %}s{% endif %}
+            para <em>"{{ busqueda }}"</em>
+            &mdash; <a href="/" class="text-muted">ver todo</a>
+        </h5>
+    {% else %}
+        <h5 class="mb-4 text-muted">Impresiones &mdash; {{ cards | length }} productos</h5>
+    {% endif %}
+
+    {# Grid responsivo: 1 columna en móvil, hasta 4 en escritorio #}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for card in cards %}
+            <div class="col">
+                <a href="/producto/{{ card.id }}" class="text-decoration-none text-dark">
+                    <div class="card h-100 shadow-sm">
+                        <img src="/public/imagenes/{{ card.imagen }}"
+                             class="card-img-top"
+                             alt="{{ card.título }}"
+                             onerror="this.src='https://placehold.co/400x220?text=Sin+imagen'">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <h6 class="card-title">{{ card.título }}</h6>
+                            <p class="card-text fw-bold mt-2 mb-0" style="color: #8b6914;">
+                                {{ card.precio }} €
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

@@ -1,0 +1,76 @@
+/* Layout general de la página */
+
+body {
+    background-color: #f5f5f0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+
+/* Barra de navegación superior */
+
+.navbar {
+    background-color: #1c1c1c !important;
+    border-bottom: 2px solid #8b6914;
+}
+
+.navbar-brand {
+    font-family: Georgia, serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.03em;
+}
+
+
+/* Tarjetas del grid de productos */
+
+.card-img-top {
+    height: 220px;
+    object-fit: cover;
+}
+
+.card {
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Efecto al pasar el ratón por encima */
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+
+/* Pie de página */
+
+footer {
+    background-color: #1c1c1c;
+    color: #888;
+    font-size: 0.85rem;
+}
+
+
+/* Input de cantidad en el carrito */
+.cantidad-input {
+    width: 70px;
+    text-align: center;
+    margin: 0 auto;
+    display: block;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.95rem;
+    color: #333;
+    background-color: #fff;
+    outline: none;
+}
+
+/* Borde dorado al hacer foco */
+.cantidad-input:focus {
+    border-color: #8b6914;
+    box-shadow: 0 0 0 2px rgba(139, 105, 20, 0.2);
+}

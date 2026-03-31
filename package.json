@@ -1,0 +1,53 @@
+{
+  "name": "pradoprint",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "tsx --watch --env-file=.env src/index.ts",
+    "build": "tsc",
+    "start": "node --env-file=.env dist/index.js",
+    "seed": "tsx --env-file=.env scripts/seed.ts",
+    "registra": "tsx --env-file=.env scripts/registra_usuarios.ts",
+    "studio": "npx prisma studio --url 'postgresql://jesusarsan:root@localhost:5432/pradoprint_ssbw?schema=public'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JesusArSan/PradoPrint.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JesusArSan/PradoPrint/issues"
+  },
+  "homepage": "https://github.com/JesusArSan/PradoPrint#readme",
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.6.0",
+    "@prisma/client": "^7.6.0",
+    "bcrypt": "^6.0.0",
+    "bootstrap-icons": "^1.13.1",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "jsonwebtoken": "^9.0.3",
+    "nunjucks": "^3.2.4",
+    "winston": "^3.19.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
+    "@types/express-session": "^1.18.2",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.5.0",
+    "@types/nunjucks": "^3.2.6",
+    "chokidar": "^3.6.0",
+    "dotenv": "^17.3.1",
+    "playwright": "^1.58.2",
+    "prisma": "^7.6.0",
+    "tsx": "^4.21.0"
+  }
+}

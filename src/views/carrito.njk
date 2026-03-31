@@ -1,0 +1,111 @@
+{% extends "base.njk" %}
+
+{% block content %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0" style="font-family: Georgia, serif;">Tu cesta</h4>
+        <a href="/" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Seguir comprando
+        </a>
+    </div>
+
+    {% if lineas | length == 0 %}
+
+        {# Carrito vacío #}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-cart-x" style="font-size: 3rem;"></i>
+            <p class="mt-3">Tu cesta está vacía.</p>
+            <a href="/" class="btn btn-dark mt-2">Ver productos</a>
+        </div>
+
+    {% else %}
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th class="text-center">Cantidad</th>
+                        <th class="text-end">Precio</th>
+                        <th class="text-end">Subtotal</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for linea in lineas %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="/public/imagenes/{{ linea.producto.imagen }}"
+                                         alt="{{ linea.producto.título }}"
+                                         style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                                    <a href="/producto/{{ linea.producto.id }}"
+                                       class="text-dark text-decoration-none">
+                                        {{ linea.producto.título }}
+                                    </a>
+                                </div>
+                            </td>
+
+                            {# La cantidad se actualiza sola al cambiar el valor #}
+                            <td class="text-end">
+                                <form action="/carrito/cantidad/{{ linea.producto.id }}" method="POST">
+                                    <input type="number"
+                                        name="cantidad"
+                                        value="{{ linea.cantidad }}"
+                                        min="1"
+                                        class="auto-submit cantidad-input">
+                                </form>
+                            </td>
+
+                            <td class="text-end">{{ linea.producto.precio }} €</td>
+                            <td class="text-end fw-bold">{{ linea.subtotal }} €</td>
+
+                            {# Botón de eliminar esta línea #}
+                            <td class="text-end">
+                                <form action="/carrito/eliminar/{{ linea.producto.id }}" method="POST"
+                                      style="margin: 0;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            title="Eliminar producto">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold">Total</td>
+                        <td class="text-end fw-bold fs-5" style="color: #8b6914;">
+                            {{ total }} €
+                        </td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        {# Acciones finales: vaciar y finalizar #}
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <form action="/carrito/vaciar" method="POST" style="margin: 0;">
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-trash3 me-1"></i>Vaciar cesta
+                </button>
+            </form>
+            <button class="btn btn-dark btn-lg px-5">
+                <i class="bi bi-bag-check me-2"></i>Finalizar compra
+            </button>
+        </div>
+
+    {% endif %}
+
+    <script>
+        // Envía el formulario de cantidad automáticamente al cambiar el valor
+        document.querySelectorAll('.auto-submit').forEach(input => {
+            input.addEventListener('change', () => {
+                input.closest('form').submit()
+            })
+        })
+    </script>
+
+{% endblock %}

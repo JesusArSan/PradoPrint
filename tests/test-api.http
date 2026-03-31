@@ -1,0 +1,155 @@
+### ============================================
+### TAREA 7: API REST - Endpoints de Prueba
+### ============================================
+### 
+### Usar con la extensión REST Client de VSCode
+### Requiere: npm run dev (servidor en http://localhost:3000)
+###
+
+@baseUrl = http://localhost:3000/api
+
+### ================================================
+### GET /api/productos - Obtener todos los productos
+### ================================================
+
+### 1. Obtener todos los productos (sin paginación, valor por defecto)
+GET {{baseUrl}}/productos
+
+###
+
+### 2. Obtener primeros 10 productos, ordenados de mayor a menor precio
+GET {{baseUrl}}/productos?desde=1&hasta=10&ordenación=desc
+
+###
+
+### 3. Obtener productos del 11 al 20, ordenados ascendentemente
+GET {{baseUrl}}/productos?desde=11&hasta=20&ordenación=asc
+
+###
+
+### ============================================
+### GET /api/producto/:id - Obtener un producto por ID
+### ============================================
+
+### 4. Obtener producto con ID 1
+GET {{baseUrl}}/producto/1
+
+###
+
+### 5. Obtener producto con ID 5
+GET {{baseUrl}}/producto/5
+
+###
+
+### 6. Obtener producto inexistente (debe retornar 404)
+GET {{baseUrl}}/producto/99999
+
+###
+
+### ============================================
+### POST /api/productos - Crear un nuevo producto
+### ============================================
+
+### 7. Crear un nuevo producto
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "título": "Nueva Impresión Test",
+  "descripción": "Descripción de la nueva impresión creada via API",
+  "precio": 99.99,
+  "imagen": "nueva-impresion.png"
+}
+
+###
+
+### 8. Crear producto con validación fallida (precio negativo)
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "título": "Producto Inválido",
+  "descripción": "Este producto tiene precio negativo",
+  "precio": -50,
+  "imagen": "invalido.png"
+}
+
+###
+
+### ============================================
+### PUT /api/producto/:id - Actualizar un producto
+### ============================================
+
+### 9. Actualizar solo el título del producto 1
+PUT {{baseUrl}}/producto/1
+Content-Type: application/json
+
+{
+  "título": "Tako \"El jardín de las delicias\" (construcción amarilla)"
+}
+
+###
+
+### 10. Actualizar precio del producto 2
+PUT {{baseUrl}}/producto/1
+Content-Type: application/json
+
+{
+  "precio": 30
+}
+
+###
+
+### 11. Actualizar todos los campos del producto 3
+PUT {{baseUrl}}/producto/3
+Content-Type: application/json
+
+{
+  "título": "Impresión Modificada",
+  "descripción": "Nueva descripción completa del producto modificado",
+  "precio": 199.99,
+  "imagen": "modificada.png"
+}
+
+###
+
+### 12. Intentar actualizar producto inexistente (404)
+PUT {{baseUrl}}/producto/99999
+Content-Type: application/json
+
+{
+  "título": "No existe"
+}
+
+###
+
+### ============================================
+### DELETE /api/producto/:id - Eliminar un producto
+### ============================================
+
+### 13. Eliminar un producto
+DELETE {{baseUrl}}/producto/50
+
+###
+
+### 14. Intentar eliminar producto inexistente (404)
+DELETE {{baseUrl}}/producto/99999
+
+###
+
+### ============================================
+### EJEMPLOS DE PAGINACIÓN Y ORDENACIÓN
+### ============================================
+
+### 15. Obtener productos con paginación por precio (descendente)
+GET {{baseUrl}}/productos?desde=1&hasta=5&ordenación=desc
+
+###
+
+### 16. Obtener siguientes 5 productos (descendente)
+GET {{baseUrl}}/productos?desde=6&hasta=10&ordenación=desc
+
+###
+
+### 17. Obtener productos ordenados ascendentemente por precio
+GET {{baseUrl}}/productos?desde=1&hasta=5&ordenación=asc

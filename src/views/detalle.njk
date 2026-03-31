@@ -1,0 +1,49 @@
+{% extends "base.njk" %}
+
+{% block content %}
+
+    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm mb-4">
+        <i class="bi bi-arrow-left me-1"></i>Volver
+    </a>
+
+    <div class="row g-5 align-items-start">
+
+        {# Imagen principal del producto #}
+        <div class="col-md-5">
+            <div class="bg-white rounded shadow-sm p-3 text-center">
+                <img src="/public/imagenes/{{ producto.imagen }}"
+                     class="img-fluid rounded"
+                     alt="{{ producto.título }}"
+                     onerror="this.src='https://placehold.co/500x500?text=Sin+imagen'">
+            </div>
+        </div>
+
+        {# Información y formulario de compra #}
+        <div class="col-md-7">
+            <h2 class="mb-1" style="font-family: Georgia, serif;">{{ producto.título }}</h2>
+            <p class="fs-3 fw-bold mb-3" style="color: #8b6914;">{{ producto.precio }} €</p>
+            <hr>
+
+            {# pre-line respeta los saltos de línea de la descripción scrapeada #}
+            <p class="text-muted lh-lg" style="white-space: pre-line;">
+                {{ producto.descripción }}
+            </p>
+
+            {# Formulario de añadir al carrito: envía id por URL y cantidad por body #}
+            <form action="/al-carrito/{{ producto.id }}" method="POST"
+                  class="d-flex align-items-center gap-3 mt-3">
+                <input type="number"
+                       name="cantidad"
+                       value="1"
+                       min="1"
+                       class="form-control"
+                       style="width: 80px;">
+                <button type="submit" class="btn btn-dark btn-lg px-4">
+                    <i class="bi bi-cart-plus me-2"></i>Añadir a la cesta
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+{% endblock %}
