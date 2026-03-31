@@ -5,17 +5,17 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 
 // Config y logger
-import { env } from './config/env.ts';
-import logger from './config/logger.ts';
+import { env } from './config/env';
+import logger from './config/logger';
 
 // Middleware
-import { authMiddleware } from './middleware/auth.ts';
-import { errorHandler } from './middleware/errorHandler.ts';
+import { authMiddleware } from './middleware/auth';
+import { errorHandler } from './middleware/errorHandler';
 
 // Rutas
-import productosRouter from './routes/productos.ts';
-import usuariosRouter from './routes/usuarios.ts';
-import apiProductosRouter from './apis/productos.ts';
+import productosRouter from './routes/productos';
+import usuariosRouter from './routes/usuarios';
+import apiProductosRouter from './apis/productos';
 
 const app = express();
 
