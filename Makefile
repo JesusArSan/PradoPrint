@@ -52,6 +52,7 @@ dev: check-env scrapper-if-missing db-up deploy-migrate seed-if-empty
 scrapper-if-missing:
 	@if [ ! -f data/productos.json ] || [ ! -d imagenes ] || [ -z "$$(ls -A imagenes 2>/dev/null)" ]; then \
 		echo "Faltan productos o imágenes, ejecutando scraper..."; \
+		npx playwright install chromium; \
 		node scripts/scrap-tp.js; \
 	else \
 		echo "Productos e imágenes ya existen, saltando scraper"; \
