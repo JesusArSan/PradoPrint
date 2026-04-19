@@ -34,6 +34,7 @@ for (const loc of await locators_productos.all()) {
 console.log(`Encontrados ${lista_urls.length} productos\n`);
 
 if (!existsSync('imagenes')) await mkdir('imagenes');
+if (!existsSync('data')) await mkdir('data');
 
 const productos = [];
 
@@ -69,8 +70,8 @@ for (const [i, url] of lista_urls.entries()) {
   }
 }
 
-await writeFile('productos.json', JSON.stringify(productos, null, 2));
-console.log(`\nGuardados ${productos.length} productos en productos.json`);
+await writeFile('data/productos.json', JSON.stringify(productos, null, 2));
+console.log(`\nGuardados ${productos.length} productos en data/productos.json`);
 console.log(`Imágenes en carpeta imagenes/`);
 
 await browser.close();

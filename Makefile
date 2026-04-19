@@ -2,7 +2,7 @@
 # Órdenes frecuentes de desarrollo
 
 # Marcar targets como "phony" (no son archivos reales)
-.PHONY: help dev build start seed seed-if-empty registra studio migrate generate clean clean-productos install test db-up db-down down deploy-migrate setup reset full-clean watch scrapper check-env
+.PHONY: help dev build start seed seed-if-empty registra studio migrate generate clean clean-productos install test db-up db-down down deploy-migrate setup reset full-clean watch scrapper scrapper-if-missing check-env
 
 # Por defecto mostrar ayuda
 .DEFAULT_GOAL := help
@@ -45,8 +45,17 @@ help:
 
 # Desarrollo
 
-dev: check-env db-up deploy-migrate seed-if-empty
+dev: check-env scrapper-if-missing db-up deploy-migrate seed-if-empty
 	npm run dev
+
+# Scraper solo si faltan datos/productos.json o imagenes/
+scrapper-if-missing:
+	@if [ ! -f data/productos.json ] || [ ! -d imagenes ] || [ -z "$$(ls -A imagenes 2>/dev/null)" ]; then \
+		echo "Faltan productos o imágenes, ejecutando scraper..."; \
+		node scripts/scrap-tp.js; \
+	else \
+		echo "Productos e imágenes ya existen, saltando scraper"; \
+	fi
 
 # Seed solo si la BD está vacía (no destruye datos existentes)
 seed-if-empty:
