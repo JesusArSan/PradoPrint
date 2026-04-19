@@ -2,7 +2,7 @@
 # Órdenes frecuentes de desarrollo
 
 # Marcar targets como "phony" (no son archivos reales)
-.PHONY: help dev build start seed registra studio migrate generate clean clean-productos install test db-up db-down deploy-migrate setup reset full-clean watch scrapper
+.PHONY: help dev build start seed seed-if-empty registra studio migrate generate clean clean-productos install test db-up db-down down deploy-migrate setup reset full-clean watch scrapper
 
 # Por defecto mostrar ayuda
 .DEFAULT_GOAL := help
@@ -19,6 +19,7 @@ help:
 	@echo "Docker:"
 	@echo "  make db-up            → Arranca PostgreSQL en Docker"
 	@echo "  make db-down          → Para PostgreSQL"
+	@echo "  make down             → Para servidor + PostgreSQL"
 	@echo ""
 	@echo "Base de Datos:"
 	@echo "  make deploy-migrate   → Aplica migraciones sin crear nuevas"
@@ -31,7 +32,7 @@ help:
 	@echo "  make studio           → Abrir Prisma Studio (localhost:5555)"
 	@echo ""
 	@echo "Despliegue:"
-	@echo "  make setup            → Setup completo desde cero en un equipo nuevo"
+	@echo "  make setup            → Primera vez: instala todo y arranca"
 	@echo "  make reset            → Borra todo y empieza de nuevo"
 	@echo ""
 	@echo "Mantenimiento:"
@@ -44,8 +45,12 @@ help:
 
 # Desarrollo
 
-dev: db-up
+dev: db-up deploy-migrate seed-if-empty
 	npm run dev
+
+# Seed solo si la BD está vacía (no destruye datos existentes)
+seed-if-empty:
+	@npx tsx --env-file=.env scripts/seed-if-empty.ts
 
 build:
 	npm run build
@@ -67,6 +72,13 @@ db-up:
 # Para la base de datos
 db-down:
 	docker compose down
+
+# Para todo: servidor Node + base de datos
+down:
+	@-pkill -f "node.*src/index" 2>/dev/null; true
+	@echo "Servidor Node parado"
+	@docker compose down
+	@echo "Todo parado"
 
 
 # Base de Datos
@@ -102,14 +114,8 @@ generate:
 
 # Despliegue
 
-# Setup completo desde cero en un equipo nuevo:
-# 1. Instala dependencias
-# 2. Arranca Docker con PostgreSQL
-# 3. Aplica migraciones
-# 4. Mete los productos
-# 5. Crea usuarios de prueba
-setup: install db-up deploy-migrate seed registra
-	@echo "Tienda Prado lista en http://localhost:3000"
+# Setup completo desde cero: instala dependencias y arranca todo
+setup: install dev
 
 # Reset completo: borra todo y vuelve a empezar
 reset: full-clean db-down

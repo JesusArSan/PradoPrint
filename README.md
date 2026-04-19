@@ -33,14 +33,17 @@ cd PradoPrint
 make setup
 ```
 
-Esto instala dependencias, arranca la base de datos en Docker, aplica las migraciones y carga los productos y usuarios de prueba.
+Esto instala dependencias, arranca PostgreSQL en Docker, aplica las migraciones, carga los productos y usuarios de prueba, y arranca el servidor en `http://localhost:3000`.
 
-Para arrancar el servidor en desarrollo:
+Las siguientes veces, basta con:
 ```bash
 make dev
 ```
 
-Abre el navegador en `http://localhost:3000`.
+Para parar todo (servidor + base de datos):
+```bash
+make down
+```
 
 ---
 
@@ -116,18 +119,20 @@ SECRET_KEY=clave_jwt_123
 
 ## Comandos
 ```bash
-make setup            # Setup completo desde cero
-make dev              # Arrancar servidor en desarrollo
+make setup            # Primera vez: instala todo y arranca el servidor
+make dev              # Arranca BD + migraciones + seed (si vacía) + servidor
+make down             # Para servidor + PostgreSQL
+make reset            # Borra todo y vuelve a empezar desde cero
+
 make db-up            # Arrancar PostgreSQL en Docker
 make db-down          # Parar PostgreSQL
 make scrapper         # Scrapear productos de tiendaprado.com
-make seed             # Cargar productos en la BD
+make seed             # Cargar productos en la BD (borra los existentes)
 make registra         # Crear usuarios de prueba
 make studio           # Abrir Prisma Studio en localhost:5555
 make migrate          # Crear y aplicar una migración nueva
 make deploy-migrate   # Aplicar migraciones existentes
 make clean            # Limpiar logs
-make reset            # Borrar todo y empezar de cero
 ```
 
 ---
