@@ -40,7 +40,7 @@ generated/
 prisma/generated/
 
 # Media (keep in dev, ignore on push)
-imagenes/
+# imagenes/
 
 # Cache
 .cache/
