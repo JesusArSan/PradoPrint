@@ -102,17 +102,17 @@ PradoPrint/
 
 ## Variables de entorno
 
-El archivo `.env` necesita estas variables:
+`make setup` crea el `.env` automáticamente desde `.env.example`. Puedes editarlo si necesitas cambiar las credenciales:
 ```env
 PORT=3000
 
-POSTGRES_USER=user
-POSTGRES_PASSWORD=clave123
-POSTGRES_DB=ssbw
-DATABASE_URL=postgresql://user:clave123@localhost:5432/ssbw?schema=public
+POSTGRES_USER=pradoprint
+POSTGRES_PASSWORD=pradoprint
+POSTGRES_DB=pradoprint_ssbw
+DATABASE_URL=postgresql://pradoprint:pradoprint@localhost:5432/pradoprint_ssbw?schema=public
 
-SESSION_SECRET=clave123
-SECRET_KEY=clave_jwt_123
+SESSION_SECRET=cambiar_esto_en_produccion
+SECRET_KEY=cambiar_esto_jwt_secret
 ```
 
 ---

@@ -2,7 +2,7 @@
 # Órdenes frecuentes de desarrollo
 
 # Marcar targets como "phony" (no son archivos reales)
-.PHONY: help dev build start seed seed-if-empty registra studio migrate generate clean clean-productos install test db-up db-down down deploy-migrate setup reset full-clean watch scrapper
+.PHONY: help dev build start seed seed-if-empty registra studio migrate generate clean clean-productos install test db-up db-down down deploy-migrate setup reset full-clean watch scrapper check-env
 
 # Por defecto mostrar ayuda
 .DEFAULT_GOAL := help
@@ -45,7 +45,7 @@ help:
 
 # Desarrollo
 
-dev: db-up deploy-migrate seed-if-empty
+dev: check-env db-up deploy-migrate seed-if-empty
 	npm run dev
 
 # Seed solo si la BD está vacía (no destruye datos existentes)
@@ -114,8 +114,14 @@ generate:
 
 # Despliegue
 
-# Setup completo desde cero: instala dependencias y arranca todo
-setup: install dev
+# Setup completo desde cero: copia .env si falta, instala y arranca todo
+setup:
+	@test -f .env || (cp .env.example .env && echo "Archivo .env creado desde .env.example — edítalo si necesitas cambiar credenciales")
+	$(MAKE) install dev
+
+# Verificar que .env existe antes de cualquier operación que lo necesite
+check-env:
+	@test -f .env || (echo "Error: falta el archivo .env. Ejecuta 'make setup' o copia .env.example a .env" && exit 1)
 
 # Reset completo: borra todo y vuelve a empezar
 reset: full-clean db-down
