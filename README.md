@@ -120,6 +120,7 @@ make setup            # Setup completo desde cero
 make dev              # Arrancar servidor en desarrollo
 make db-up            # Arrancar PostgreSQL en Docker
 make db-down          # Parar PostgreSQL
+make scrapper         # Scrapear productos de tiendaprado.com
 make seed             # Cargar productos en la BD
 make registra         # Crear usuarios de prueba
 make studio           # Abrir Prisma Studio en localhost:5555

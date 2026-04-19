@@ -2,7 +2,7 @@
 # Órdenes frecuentes de desarrollo
 
 # Marcar targets como "phony" (no son archivos reales)
-.PHONY: help dev build start seed registra studio migrate generate clean clean-productos install test db-up db-down deploy-migrate setup reset full-clean watch
+.PHONY: help dev build start seed registra studio migrate generate clean clean-productos install test db-up db-down deploy-migrate setup reset full-clean watch scrapper
 
 # Por defecto mostrar ayuda
 .DEFAULT_GOAL := help
@@ -24,6 +24,7 @@ help:
 	@echo "  make deploy-migrate   → Aplica migraciones sin crear nuevas"
 	@echo "  make migrate          → Crear y aplicar nuevas migraciones"
 	@echo "  make generate         → Regenerar tipos de Prisma"
+	@echo "  make scrapper         → Scrapear productos de tiendaprado.com"
 	@echo "  make seed             → Poblar BD con 115 productos"
 	@echo "  make registra         → Crear usuarios test"
 	@echo "  make clean-productos  → Vaciar todos los productos de la BD"
@@ -43,7 +44,7 @@ help:
 
 # Desarrollo
 
-dev:
+dev: db-up
 	npm run dev
 
 build:
@@ -78,6 +79,10 @@ registra:
 
 clean-productos:
 	npx tsx scripts/clean-productos.ts
+
+# Ejecuta el scraper para descargar productos e imágenes de tiendaprado.com
+scrapper:
+	node scripts/scrap-tp.js
 
 studio:
 	npx prisma studio

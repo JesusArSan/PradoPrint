@@ -39,9 +39,8 @@ lerna-debug.log*
 generated/
 prisma/generated/
 
-# Data & Media (keep in dev, ignore on push)
+# Media (keep in dev, ignore on push)
 imagenes/
-data/productos.json
 
 # Cache
 .cache/
