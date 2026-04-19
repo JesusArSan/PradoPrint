@@ -40,10 +40,10 @@ app.use(
   session({
     secret: env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,  // Crear sesión incluso sin datos iniciales
     cookie: {
       secure: env.isProduction,
-      sameSite: 'strict', 
+      sameSite: 'lax',  // 'lax' permite fetch con credentials: include
       httpOnly: true,
     },
   })
@@ -63,6 +63,7 @@ app.use(authMiddleware);
 // Assets estáticos
 app.use('/public/imagenes', express.static('imagenes'));
 app.use('/css', express.static('src/public/css'));
+app.use('/js', express.static('src/public/js'));
 app.use(express.static('public'));
 
 // ============== RUTAS ==============

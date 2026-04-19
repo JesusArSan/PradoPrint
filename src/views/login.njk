@@ -19,8 +19,9 @@
                         </div>
                     {% endif %}
 
-                    <form action="/login" method="POST">
+                    <form action="/login" method="POST" novalidate>
 
+                        {# Campo Email con validación on blur #}
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email"
@@ -28,17 +29,37 @@
                                    name="email"
                                    class="form-control"
                                    placeholder="tu@email.com"
+                                   autocomplete="email"
+                                   autofocus
                                    required>
+                            <div class="invalid-feedback"></div>
                         </div>
 
+                        {# Campo Contraseña con toggle + requisitos en tiempo real #}
                         <div class="mb-4">
                             <label for="contraseña" class="form-label">Contraseña</label>
-                            <input type="password"
-                                   id="contraseña"
-                                   name="contraseña"
-                                   class="form-control"
-                                   placeholder="••••••••"
-                                   required>
+                            <div class="input-group-password">
+                                <input type="password"
+                                       id="contraseña"
+                                       name="contraseña"
+                                       class="form-control"
+                                       placeholder="••••••••"
+                                       autocomplete="current-password"
+                                       required>
+                                <button type="button"
+                                        id="toggle-password"
+                                        class="toggle-password-btn"
+                                        title="Mostrar/ocultar contraseña">
+                                    <i class="bi bi-eye-slash"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback"></div>
+
+                            {# Requisitos de contraseña mostrados on focus #}
+                            <div id="req-pass">
+                                <small><strong>Requisitos:</strong></small>
+                                <ul></ul>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn btn-dark w-100">
@@ -58,4 +79,8 @@
         </div>
     </div>
 
+{% endblock %}
+
+{% block scripts %}
+    <script src="/js/login-ux.js"></script>
 {% endblock %}

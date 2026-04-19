@@ -157,4 +157,49 @@ router.post('/carrito/vaciar', (req: Request, res: Response) => {
   res.redirect('/carrito');
 });
 
+/**
+ * GET /api/carrito-items — API JSON para el offcanvas del carrito
+ * Devuelve los items del carrito con datos completos del producto
+ * Usado por el panel lateral del carrito (sin recarga de página)
+ */
+router.get('/api/carrito-items', async (req: Request, res: Response) => {
+  try {
+    const items = req.session.carrito ?? [];
+
+    if (items.length === 0) {
+      return res.json({ success: true, data: [], total: 0 });
+    }
+
+    // Resolver cada item con sus datos de producto
+    const lineas = await Promise.all(
+      items.map(async (item) => {
+        const producto = await productService.getProductById(item.id);
+        return {
+          id: producto.id,
+          producto: {
+            id: producto.id,
+            título: producto.título,
+            imagen: producto.imagen,
+            precio: producto.precio,
+          },
+          cantidad: item.cantidad,
+          subtotal: Number(producto.precio) * item.cantidad,
+        };
+      })
+    );
+
+    const total = lineas.reduce((acc, linea) => acc + linea.subtotal, 0);
+
+    res.json({
+      success: true,
+      data: lineas,
+      total,
+      count: lineas.length,
+    });
+  } catch (error: any) {
+    logger.error(`Error obteniendo carrito JSON: ${error.message}`);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 export default router;

@@ -42,9 +42,13 @@
                     </a>
                 {% endif %}
 
-                {# Icono del carrito con badge de unidades #}
-                <a href="/carrito" class="text-white position-relative text-decoration-none"
-                   style="font-size: 1.5rem;">
+                {# Botón del carrito que abre offcanvas (sin recargar página) #}
+                <button type="button"
+                        class="btn text-white position-relative"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#carritoOffcanvas"
+                        aria-controls="carritoOffcanvas"
+                        style="background: none; border: none; font-size: 1.5rem; padding: 0;">
                     <i class="bi bi-cart3"></i>
                     {% if total_carrito > 0 %}
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
@@ -52,7 +56,7 @@
                             {{ total_carrito }}
                         </span>
                     {% endif %}
-                </a>
+                </button>
 
             </div>
         </nav>
@@ -67,6 +71,46 @@
             </div>
         </footer>
 
+        <!-- Template para renderizar líneas del carrito offcanvas -->
+        <template id="tmpl-linea-carrito">
+            <div class="carrito-item">
+                <img src="" alt="" class="carrito-item-img">
+                <div class="carrito-item-info">
+                    <div class="carrito-item-title"></div>
+                    <div class="carrito-item-price"></div>
+                    <div class="carrito-item-cantidad"></div>
+                </div>
+                <button type="button" class="carrito-item-btn-remove" title="Eliminar producto">
+                    <i class="bi bi-trash3"></i>
+                </button>
+            </div>
+        </template>
+
+        <!-- Offcanvas del carrito (panel lateral) -->
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="carritoOffcanvas"
+             aria-labelledby="carritoOffcanvasLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="carritoOffcanvasLabel">Tu cesta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                        aria-label="Cerrar"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul id="carrito-lista"></ul>
+            </div>
+            <div class="offcanvas-footer">
+                <div class="carrito-total">
+                    <span>Total:</span>
+                    <span id="carrito-total-amount">0,00 €</span>
+                </div>
+                <a href="/carrito" class="btn btn-dark w-100">
+                    <i class="bi bi-bag-check me-2"></i>Ver cesta completa
+                </a>
+            </div>
+        </div>
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="/js/carrito-offcanvas.js"></script>
+
+        {% block scripts %}{% endblock %}
     </body>
 </html>

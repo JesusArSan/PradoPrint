@@ -11,8 +11,8 @@ Aplicación web de e-commerce para la sección de impresiones de la Tienda del M
 
 - Muestra un catálogo de 115 productos de impresión scrapeados de tiendaprado.com
 - Permite buscar productos por texto
-- Tiene carrito de compras con sesión
-- Sistema de login y registro de usuarios
+- Carrito de compras con sesión y panel lateral offcanvas (sin recargar página)
+- Sistema de login y registro con validación UX en tiempo real
 - API REST para gestionar productos
 
 ---
@@ -67,6 +67,11 @@ PradoPrint/
 │   │   └── auth.ts           # Verificación JWT
 │   ├── config/
 │   │   └── logger.ts         # Logger Winston
+│   ├── public/
+│   │   ├── css/styles.css    # Estilos personalizados
+│   │   └── js/
+│   │       ├── login-ux.js       # Validación UX del login
+│   │       └── carrito-offcanvas.js  # Carrito offcanvas con template DOM
 │   └── views/                # Plantillas Nunjucks
 │       ├── base.njk
 │       ├── portada.njk

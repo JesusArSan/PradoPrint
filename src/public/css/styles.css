@@ -74,3 +74,221 @@ footer {
     border-color: #8b6914;
     box-shadow: 0 0 0 2px rgba(139, 105, 20, 0.2);
 }
+
+
+/* ============================================ */
+/* Login UX Improvements                        */
+/* ============================================ */
+
+/* Input group con toggle de contraseña */
+.input-group-password {
+    position: relative;
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 0.25rem 0.5rem;
+    font-size: 1.1rem;
+    z-index: 10;
+}
+
+.toggle-password-btn:hover {
+    color: #333;
+}
+
+/* Validación de campos */
+.form-control.is-invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='12 12 24 24'%3e%3ccircle cx='24' cy='24' r='11' fill='none' stroke='%23dc3545' stroke-width='2'/%3e%3cpath fill='%23dc3545' d='M24 20v4m0 4v.01'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(1.5em + 0.75rem) calc(1.5em + 0.75rem);
+}
+
+.form-control.is-invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.invalid-feedback {
+    display: block;
+    color: #dc3545;
+    font-size: 0.875em;
+    margin-top: 0.25rem;
+}
+
+/* Requisitos de contraseña */
+#req-pass {
+    display: none;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+#req-pass.show {
+    display: block;
+}
+
+#req-pass ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#req-pass li {
+    padding: 0.4rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#req-pass li::before {
+    content: '';
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    flex-shrink: 0;
+}
+
+#req-pass li.valid::before {
+    background-color: #28a745;
+}
+
+#req-pass li.invalid::before {
+    background-color: #dc3545;
+}
+
+#req-pass li.valid {
+    color: #28a745;
+}
+
+#req-pass li.invalid {
+    color: #dc3545;
+}
+
+
+/* ============================================ */
+/* Offcanvas Carrito Personalizado             */
+/* ============================================ */
+
+.offcanvas {
+    width: 400px;
+    max-width: 90vw;
+}
+
+.offcanvas-header {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.offcanvas-body {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+}
+
+#carrito-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.carrito-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    align-items: flex-start;
+}
+
+.carrito-item:last-child {
+    border-bottom: none;
+}
+
+.carrito-item-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 0.375rem;
+    flex-shrink: 0;
+}
+
+.carrito-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.carrito-item-title {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.carrito-item-price {
+    color: #8b6914;
+    font-weight: bold;
+}
+
+.carrito-item-cantidad {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.carrito-item-btn-remove {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    font-size: 1rem;
+}
+
+.carrito-item-btn-remove:hover {
+    color: #c82333;
+}
+
+.carrito-vacio {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #999;
+}
+
+.carrito-vacio i {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.offcanvas-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.carrito-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #8b6914;
+}
