@@ -1,20 +1,14 @@
 /**
- * Clase personalizada para errores de aplicación
- * Extiende Error para mejor manejo en middleware de errores
+ * Error operacional con código HTTP.
+ * Cualquier error lanzado como AppError es tratado por `errorHandler`
+ * como una respuesta de error esperada (el mensaje llega al cliente).
  */
 export class AppError extends Error {
-  statusCode: number;
-  isOperational: boolean;
+  readonly statusCode: number;
 
-  constructor(statusCode: number, message: string, isOperational = true) {
+  constructor(statusCode: number, message: string) {
     super(message);
     this.statusCode = statusCode;
-    this.isOperational = isOperational;
-    
     Object.setPrototypeOf(this, AppError.prototype);
   }
 }
-
-export const throwError = (statusCode: number, message: string) => {
-  throw new AppError(statusCode, message);
-};

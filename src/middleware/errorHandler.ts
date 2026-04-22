@@ -3,41 +3,44 @@ import { AppError } from '../utils/AppError.ts';
 import logger from '../config/logger.ts';
 
 /**
- * Middleware global para capturar errores
- * Debe ser el último middleware
+ * Middleware global de errores. Content-negotiation:
+ * - Rutas /api/* → JSON
+ * - Resto → texto plano (rutas web)
  */
 export const errorHandler = (
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Error interno del servidor';
+  const statusCode = err instanceof AppError ? err.statusCode : 500;
+  const isOperational = err instanceof AppError;
+  const message = isOperational ? err.message : 'Error interno del servidor';
+  const isDev = process.env.NODE_ENV === 'development';
 
-  logger.error(`[${req.method} ${req.path}] ${statusCode}: ${message}`);
+  logger.error(`[${req.method} ${req.path}] ${statusCode}: ${err.message}`);
 
-  if (err instanceof AppError) {
-    return res.status(statusCode).json({
+  const wantsJson = req.path.startsWith('/api/') || req.accepts(['html', 'json']) === 'json';
+
+  if (wantsJson) {
+    res.status(statusCode).json({
       success: false,
       error: message,
-      ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+      ...(isDev && !isOperational && { details: err.message, stack: err.stack }),
     });
+    return;
   }
 
-  // Errores no controlados
-  res.status(500).json({
-    success: false,
-    error: 'Error interno del servidor',
-    ...(process.env.NODE_ENV === 'development' && { details: message }),
-  });
+  res.status(statusCode).send(`Error: ${message}`);
 };
 
 /**
- * Wrapper para funciones async de rutas
- * Captura errores sin try-catch repetido
+ * Envuelve handlers async para que los errores lleguen a `errorHandler`
+ * sin necesidad de try/catch en cada ruta.
  */
-export const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) => {
+export const asyncHandler = (
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<any>
+) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };

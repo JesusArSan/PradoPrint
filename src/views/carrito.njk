@@ -99,13 +99,8 @@
 
     {% endif %}
 
-    <script>
-        // Envía el formulario de cantidad automáticamente al cambiar el valor
-        document.querySelectorAll('.auto-submit').forEach(input => {
-            input.addEventListener('change', () => {
-                input.closest('form').submit()
-            })
-        })
-    </script>
+{% endblock %}
 
+{% block scripts %}
+    <script src="/js/carrito-cantidad.js"></script>
 {% endblock %}

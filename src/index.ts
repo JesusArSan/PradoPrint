@@ -4,60 +4,50 @@ import nunjucks from 'nunjucks';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 
-// Config y logger
 import { env } from './config/env';
 import logger from './config/logger';
 
-// Middleware
 import { authMiddleware } from './middleware/auth';
 import { errorHandler } from './middleware/errorHandler';
 
-// Rutas
 import productosRouter from './routes/productos';
+import carritoRouter from './routes/carrito';
 import usuariosRouter from './routes/usuarios';
 import apiProductosRouter from './apis/productos';
- 
+import apiCarritoRouter from './apis/carrito';
+
 const app = express();
 
-// ============== CONFIGURACIÓN ==============
-
-// Motor de plantillas Nunjucks
 nunjucks.configure('src/views', {
   autoescape: true,
   express: app,
   watch: env.isDevelopment,
 });
-
 app.set('view engine', 'njk');
 
-// Parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Sessions
 app.use(
   session({
     secret: env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,  // Crear sesión incluso sin datos iniciales
+    saveUninitialized: true,
     cookie: {
       secure: env.isProduction,
-      sameSite: 'lax',  // 'lax' permite fetch con credentials: include
+      sameSite: 'lax',
       httpOnly: true,
     },
   })
 );
 
-// ============== MIDDLEWARE GLOBAL ==============
-
-// Carrito en locals
+// Exponer el contador del carrito en todas las vistas
 app.use((req, res, next) => {
   res.locals.total_carrito = req.session?.total_carrito ?? 0;
   next();
 });
 
-// Autenticación JWT
 app.use(authMiddleware);
 
 // Assets estáticos
@@ -66,37 +56,29 @@ app.use('/css', express.static('src/public/css'));
 app.use('/js', express.static('src/public/js'));
 app.use(express.static('public'));
 
-// ============== RUTAS ==============
-
 // Rutas web
 app.use('/', productosRouter);
+app.use('/', carritoRouter);
 app.use('/', usuariosRouter);
 
 // API REST
 app.use('/api', apiProductosRouter);
+app.use('/api', apiCarritoRouter);
 
-// Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// ============== MANEJO DE ERRORES ==============
-
-// 404
-app.use((req, res) => {
+app.use((_req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
-// Error handler (debe ser el último middleware)
 app.use(errorHandler);
-
-// ============== INICIAR SERVIDOR ==============
 
 app.listen(env.PORT, () => {
   logger.info(`Servidor arrancado en http://localhost:${env.PORT}`);
 });
 
-// Graceful shutdown
 process.on('SIGTERM', () => {
   logger.info('SIGTERM recibido, cerrando aplicación...');
   process.exit(0);
