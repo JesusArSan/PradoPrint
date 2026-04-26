@@ -9,6 +9,7 @@ import logger from './config/logger';
 
 import { authMiddleware } from './middleware/auth';
 import { errorHandler } from './middleware/errorHandler';
+import { corsMiddleware } from './middleware/cors';
 
 import productosRouter from './routes/productos';
 import carritoRouter from './routes/carrito';
@@ -24,6 +25,8 @@ nunjucks.configure('src/views', {
   watch: env.isDevelopment,
 });
 app.set('view engine', 'njk');
+
+app.use(corsMiddleware);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

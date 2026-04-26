@@ -15,6 +15,7 @@ Aplicación web de e-commerce para la sección de impresiones de la Tienda del M
 - Carrito de compras con sesión + panel lateral (offcanvas) sin recargar página
 - Login y registro con validación UX en tiempo real
 - API REST para gestionar productos
+- SPA frontend (Vite + React + TypeScript + Tailwind v4 + SWR) con dos componentes: imagen aleatoria de perro y cuadro aleatorio del catálogo
 
 ---
 
@@ -135,6 +136,18 @@ PradoPrint/
 │   └── test-api.http           # Tests REST Client para la API
 ├── data/productos.json         # Productos scrapeados
 ├── imagenes/                   # Imágenes descargadas
+├── frontend/                   # SPA Vite + React + TS + Tailwind + SWR
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   ├── index.css           # Tailwind v4 + tema Montserrat
+│   │   └── components/
+│   │       ├── Perritos.tsx    # useState + useEffect (API dog.ceo)
+│   │       └── Cuadros.tsx     # SWR (API /api/cuadros/random)
+│   ├── index.html
+│   ├── vite.config.ts
+│   ├── tsconfig.json
+│   └── package.json
 ├── docker-compose.yml          # PostgreSQL en Docker
 ├── Makefile                    # Comandos del proyecto
 ├── .env.example                # Plantilla de variables de entorno
@@ -157,6 +170,9 @@ DATABASE_URL=postgresql://pradoprint:pradoprint@localhost:5432/pradoprint_ssbw?s
 
 SESSION_SECRET=cambiar_esto_en_produccion
 SECRET_KEY=cambiar_esto_jwt_secret
+
+# Solo si la SPA y el backend están en dominios distintos (lista separada por comas).
+FRONTEND_ORIGIN=
 ```
 
 ---
@@ -183,10 +199,15 @@ make seed             # Carga productos en la BD (borra los existentes)
 make registra         # Crea usuarios de prueba
 make clean-productos  # Vacía la tabla de productos
 
+# Frontend (SPA)
+make frontend-install # Instala dependencias del SPA
+make frontend-dev     # Arranca Vite en localhost:5173
+make frontend-build   # Build de producción del SPA
+
 # Mantenimiento
 make build            # Compila TypeScript a dist/
 make clean            # Limpia logs/
-make full-clean       # Limpia logs/ y node_modules/
+make full-clean       # Limpia logs/, node_modules/ (backend + frontend)
 ```
 
 ---
@@ -201,6 +222,7 @@ PUT    /api/producto/:id
 DELETE /api/producto/:id
 
 GET    /api/carrito-items      # JSON del carrito (usado por el offcanvas)
+GET    /api/cuadros/random     # Devuelve un cuadro aleatorio (consumido por la SPA)
 ```
 
 Hay ejemplos listos para usar en [tests/test-api.http](tests/test-api.http) con la extensión REST Client de VS Code.
@@ -219,3 +241,80 @@ Hay ejemplos listos para usar en [tests/test-api.http](tests/test-api.http) con 
 - **Playwright** — scraping
 - **Bootstrap 5** — estilos y componente offcanvas
 - **DOM API nativa** — validaciones del login y renderizado del carrito (sin frameworks JS)
+- **Vite + React + TypeScript** — SPA frontend (carpeta `frontend/`)
+- **Tailwind CSS v4** — estilos del SPA (plugin oficial de Vite)
+- **SWR** — fetching/caché del cuadro aleatorio en el SPA
+
+---
+
+## SPA frontend
+
+La SPA vive en la carpeta `frontend/` y consume tanto una API externa (perros aleatorios) como el backend de PradoPrint (cuadros aleatorios).
+
+### Componentes
+
+- `frontend/src/components/Perritos.tsx` — `useState` + `useEffect`, fetch a `https://dog.ceo/api/breeds/image/random`, gestiona estados `loading` y `error`.
+- `frontend/src/components/Cuadros.tsx` — usa `swr` para llamar a `GET /api/cuadros/random` del backend. Botón **¡Otro!** que invoca `mutate()` para revalidar.
+
+### Stack
+
+- Vite 5 + React 18 + TypeScript
+- Tailwind CSS v4 vía `@tailwindcss/vite` (sin `tailwind.config.js`; tema en CSS)
+- SWR 2
+
+### Instalación y ejecución
+
+```bash
+# 1. Backend (terminal 1) — incluye DB, migraciones y seed
+make dev                 # http://localhost:3000
+
+# 2. Frontend (terminal 2)
+make frontend-dev        # http://localhost:5173 (instala deps si falta)
+```
+
+Build de producción:
+```bash
+make frontend-build      # genera frontend/dist/
+```
+
+### Configuración
+
+Variables (ver `frontend/.env.example`):
+
+| Variable | Ámbito | Descripción |
+|---|---|---|
+| `VITE_API_URL` | build | Origen del backend cuando la SPA y el backend NO comparten dominio. Vacío por defecto: la SPA usa rutas relativas (`/api/...`). |
+| `VITE_DEV_PROXY_TARGET` | dev | Backend al que el proxy de Vite reenvía `/api` y `/public`. Por defecto `http://localhost:3000`. |
+
+**Desarrollo** — La SPA hace fetch a rutas relativas (`/api/cuadros/random`, `/public/imagenes/...`). Vite las proxyea al backend, así que en dev no hay petición cross-origin (no preflight, no CORS). Esto evita que un error de CORS rompa el flujo dev.
+
+**Producción** — Dos despliegues posibles:
+
+1. **Mismo dominio** (SPA servida por el mismo backend o por un reverse proxy delante de ambos): dejar `VITE_API_URL` vacío. Las rutas relativas funcionan sin CORS.
+2. **Dominios distintos** (ej. `app.example.com` + `api.example.com`): definir `VITE_API_URL=https://api.example.com` en el build de la SPA y `FRONTEND_ORIGIN=https://app.example.com` en el backend. El middleware CORS reflejará el origen permitido.
+
+### Tailwind
+
+Tailwind v4 se importa directamente desde `frontend/src/index.css`:
+
+```css
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=EB+Garamond:ital@0;1&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-montserrat: "Montserrat", sans-serif;
+}
+```
+
+El plugin oficial `@tailwindcss/vite` se registra en `frontend/vite.config.ts`. La fuente `Montserrat` se aplica con la clase `font-montserrat`.
+
+### CORS
+
+Middleware en [src/middleware/cors.ts](src/middleware/cors.ts):
+
+- **Desarrollo**: el proxy de Vite elimina la mayoría de peticiones cross-origin. Si aun así una petición cross-origin llega (p. ej. abrir la SPA con `127.0.0.1` o desde otra herramienta), se permiten `http://localhost:5173` y `http://127.0.0.1:5173` y los orígenes adicionales que aparezcan en `FRONTEND_ORIGIN`.
+- **Producción**: solo los orígenes listados en `FRONTEND_ORIGIN` (separados por coma). Si la variable está vacía, **no se permite ningún origen externo** — el backend sigue funcionando para su propio dominio.
+- **Preflight (`OPTIONS`)**: se responde `204` cuando el origen está permitido y `403` cuando no, en lugar de dejar pasar la petición silenciosamente.
+- **Headers**: se refleja `Access-Control-Request-Headers` en `Access-Control-Allow-Headers` (en vez de una lista fija); `Access-Control-Allow-Credentials: true`; `Access-Control-Max-Age: 600` para reducir preflights.
+- **`Vary: Origin`** siempre, para que caches intermedios no mezclen respuestas entre orígenes.
+- Nunca se usa `Access-Control-Allow-Origin: *`.

@@ -88,6 +88,19 @@ export class ProductService {
   }
 
   /**
+   * Devuelve un producto aleatorio (cuadro)
+   */
+  async getRandomProduct() {
+    const total = await prisma.producto.count();
+    if (total === 0) {
+      throw new AppError(404, 'No hay productos disponibles');
+    }
+    const skip = Math.floor(Math.random() * total);
+    const [producto] = await prisma.producto.findMany({ skip, take: 1 });
+    return producto;
+  }
+
+  /**
    * Busca productos por texto
    */
   async searchProducts(busqueda: string) {

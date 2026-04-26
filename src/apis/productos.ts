@@ -35,6 +35,18 @@ router.get(
 );
 
 /**
+ * GET /api/cuadros/random
+ * Devuelve un producto (cuadro) aleatorio
+ */
+router.get(
+  '/cuadros/random',
+  asyncHandler(async (_req, res) => {
+    const producto = await productService.getRandomProduct();
+    res.json({ success: true, data: producto });
+  })
+);
+
+/**
  * GET /api/producto/:id
  * Obtiene un producto por ID
  */

@@ -2,7 +2,7 @@
 # Órdenes frecuentes de desarrollo
 
 # Marcar targets como "phony" (no son archivos reales)
-.PHONY: help dev build start seed seed-if-empty registra studio migrate generate clean clean-productos install test db-up db-down down deploy-migrate setup reset full-clean watch scrapper scrapper-if-missing check-env
+.PHONY: help dev dev-backend dev-frontend build start seed seed-if-empty registra studio migrate generate clean clean-productos install test db-up db-down down deploy-migrate setup reset full-clean watch scrapper scrapper-if-missing check-env frontend-install frontend-dev frontend-build front-clean
 
 # Por defecto mostrar ayuda
 .DEFAULT_GOAL := help
@@ -12,7 +12,7 @@ help:
 	@echo "TIENDA PRADO - Comandos disponibles:"
 	@echo ""
 	@echo "Desarrollo:"
-	@echo "  make dev              → Servidor con hot-reload (localhost:3000)"
+	@echo "  make dev              → Backend (3000) + SPA (5173) en paralelo"
 	@echo "  make build            → Compilar TypeScript a dist/"
 	@echo "  make start            → Ejecutar versión compilada"
 	@echo ""
@@ -31,6 +31,11 @@ help:
 	@echo "  make clean-productos  → Vaciar todos los productos de la BD"
 	@echo "  make studio           → Abrir Prisma Studio (localhost:5555)"
 	@echo ""
+	@echo "Frontend (SPA):"
+	@echo "  make frontend-install → Instalar dependencias de la SPA"
+	@echo "  make frontend-dev     → Arrancar SPA en localhost:5173 (Vite)"
+	@echo "  make frontend-build   → Build de producción de la SPA"
+	@echo ""
 	@echo "Despliegue:"
 	@echo "  make setup            → Primera vez: instala todo y arranca"
 	@echo "  make reset            → Borra todo y empieza de nuevo"
@@ -45,8 +50,15 @@ help:
 
 # Desarrollo
 
-dev: check-env scrapper-if-missing db-up deploy-migrate seed-if-empty
-	npm run dev
+dev: check-env scrapper-if-missing db-up deploy-migrate seed-if-empty frontend-install
+	@echo "Arrancando backend (3000) + frontend (5173)... (Ctrl+C para parar)"
+	@$(MAKE) -j2 --no-print-directory dev-backend dev-frontend
+
+dev-backend:
+	@npm run dev
+
+dev-frontend:
+	@cd frontend && npm run dev
 
 # Scraper solo si faltan datos/productos.json o imagenes/
 scrapper-if-missing:
@@ -86,7 +98,9 @@ db-down:
 # Para todo: servidor Node + base de datos
 down:
 	@-pkill -f "node.*src/index" 2>/dev/null; true
-	@echo "Servidor Node parado"
+	@-pkill -f "tsx.*src/index" 2>/dev/null; true
+	@-pkill -f "vite" 2>/dev/null; true
+	@echo "Servidor Node y Vite parados"
 	@docker compose down
 	@echo "Todo parado"
 
@@ -148,9 +162,31 @@ clean:
 	@rm -rf logs/*.log logs/*.json 2>/dev/null || true
 	@echo "Logs limpios"
 
-full-clean: clean
+full-clean: clean front-clean
 	@rm -rf node_modules package-lock.json
 	@echo "node_modules y package-lock.json eliminados"
 
 test:
 	npm test
+
+
+# Frontend (SPA Vite + React + TS + Tailwind + SWR)
+
+# Instala dependencias del frontend solo si falta node_modules
+frontend-install:
+	@if [ ! -d frontend/node_modules ]; then \
+		echo "Instalando dependencias del frontend..."; \
+		cd frontend && npm install; \
+	else \
+		echo "Dependencias del frontend ya instaladas"; \
+	fi
+
+frontend-dev: frontend-install
+	cd frontend && npm run dev
+
+frontend-build: frontend-install
+	cd frontend && npm run build
+
+front-clean:
+	@rm -rf frontend/node_modules frontend/dist
+	@echo "Frontend limpio"
