@@ -69,6 +69,10 @@ all:
 		echo "Error: algun puerto requerido ya esta ocupado (3000, 5173 o 4321)" >&2; \
 		exit 1; \
 	fi; true
+	@if [ ! -d node_modules ]; then \
+		echo "[1/7] Instalando dependencias del backend..."; \
+		npm install >/tmp/pradoprint-install.log 2>&1; \
+	fi; true
 	@if [ ! -d frontend/node_modules ]; then \
 		echo "[1/7] Instalando dependencias del frontend..."; \
 		cd frontend && npm install >/tmp/pradoprint-frontend-install.log 2>&1; \
