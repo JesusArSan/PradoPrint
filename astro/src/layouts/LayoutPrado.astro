@@ -1,0 +1,13 @@
+---
+import Layout from './Layout.astro'
+
+type Props = {
+  title?: string
+}
+
+const { title = 'Prado Print | Tienda' } = Astro.props
+---
+
+<Layout title={title}>
+  <slot />
+</Layout>

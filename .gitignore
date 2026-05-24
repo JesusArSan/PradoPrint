@@ -45,6 +45,7 @@ prisma/generated/
 # Cache
 .cache/
 .turbo/
+.astro/
 
 # Testing
 coverage/

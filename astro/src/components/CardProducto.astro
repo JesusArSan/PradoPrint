@@ -1,0 +1,32 @@
+---
+import { imagePath, productSlug } from '../lib/productos'
+
+type Props = {
+  título: string
+  texto_precio: string
+  imagen: string
+  index: number
+}
+
+const { título, texto_precio, imagen, index } = Astro.props
+const slug = productSlug(título, index)
+---
+
+<article class="group">
+  <a class="block space-y-3" href={`/productos/${slug}`}>
+    <div class="flex h-64 items-center justify-center bg-stone-100 p-4">
+      <img
+        src={imagePath(imagen)}
+        alt={título}
+        class="max-h-full max-w-full object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+        loading="lazy"
+      />
+    </div>
+    <div class="space-y-1">
+      <h2 class="line-clamp-2 text-sm font-bold leading-6 text-stone-800">
+        {título}
+      </h2>
+      <p class="text-sm text-stone-500">{texto_precio}</p>
+    </div>
+  </a>
+</article>

@@ -1,5 +1,6 @@
 import useSWR from 'swr'
 import { apiUrl } from '../lib/api'
+import { resolveProductImage } from '../lib/images'
 import Card from './Card'
 
 type Cuadro = {
@@ -19,13 +20,6 @@ const fetcher = async (u: string): Promise<Cuadro> => {
   if (!r.ok) throw new Error(`HTTP ${r.status}`)
   const json: ApiResponse = await r.json()
   return json.data
-}
-
-const resolveImage = (raw: string): string => {
-  const value = raw.trim()
-  if (!value) return ''
-  if (/^https?:\/\//i.test(value)) return value
-  return apiUrl(`/public/imagenes/${value}`)
 }
 
 export default function Cuadros() {
@@ -53,8 +47,9 @@ export default function Cuadros() {
           </span>
         ) : data ? (
           <img
-            src={resolveImage(data.imagen)}
+            src={resolveProductImage(data.imagen)}
             alt={titulo}
+            loading="eager"
             className="max-w-full max-h-full object-contain"
           />
         ) : null

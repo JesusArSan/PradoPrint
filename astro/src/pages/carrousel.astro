@@ -1,0 +1,9 @@
+---
+import Layout from '../layouts/Layout.astro'
+import CarrouselSSG from '../components/CarrouselSSG'
+import productosJson from '../../../data/productos.json'
+---
+
+<Layout title="Prado Print | Carrusel">
+  <CarrouselSSG productos={productosJson} client:load />
+</Layout>

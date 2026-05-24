@@ -55,6 +55,7 @@ export default function Perritos() {
           <img
             src={url}
             alt="Perrito aleatorio"
+            loading="eager"
             className="max-w-full max-h-full object-contain"
           />
         ) : null

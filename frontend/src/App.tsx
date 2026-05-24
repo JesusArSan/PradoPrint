@@ -1,29 +1,53 @@
-import Perritos from './components/Perritos'
-import Cuadros from './components/Cuadros'
+import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import Tarea9Page from './pages/Tarea9Page'
+import CarouselPage from './pages/CarouselPage'
+
+const navClass = ({ isActive }: { isActive: boolean }) =>
+  [
+    'text-sm transition-colors',
+    isActive ? 'font-bold text-stone-900' : 'text-stone-500 hover:text-stone-900',
+  ].join(' ')
 
 function App() {
   return (
-    <div className="min-h-screen bg-stone-50 font-montserrat text-stone-800">
-      <header className="border-b border-stone-200 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-6 py-5">
-          <h1 className="text-2xl font-bold tracking-tight">PradoPrint</h1>
-          <p className="text-sm text-stone-500 mt-0.5">
-            Galería aleatoria · Perritos &amp; Cuadros
-          </p>
-        </div>
-      </header>
+    <BrowserRouter>
+      <div className="min-h-screen bg-white font-montserrat text-stone-800">
+        <header className="border-b border-stone-200 bg-white">
+          <div className="mx-auto max-w-5xl px-6 py-5">
+            <div className="flex items-center justify-between gap-6">
+              <NavLink
+                to="/"
+                end
+                className="text-2xl font-bold tracking-tight text-stone-900"
+              >
+                Prado Print
+              </NavLink>
 
-      <main className="max-w-5xl mx-auto px-6 py-10">
-        <div className="grid gap-6 md:grid-cols-2">
-          <Perritos />
-          <Cuadros />
-        </div>
-      </main>
+              <nav className="flex items-center gap-5">
+                <NavLink to="/" end className={navClass}>
+                  Portada
+                </NavLink>
+                <NavLink to="/tarea-9" className={navClass}>
+                  Tarea 9
+                </NavLink>
+                <NavLink to="/carousel" className={navClass}>
+                  Carrusel
+                </NavLink>
+              </nav>
+            </div>
+          </div>
+        </header>
 
-      <footer className="max-w-5xl mx-auto px-6 py-6 text-xs text-stone-400">
-        Imágenes de dog.ceo y catálogo PradoPrint
-      </footer>
-    </div>
+        <main className="mx-auto max-w-5xl px-6 py-10">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/tarea-9" element={<Tarea9Page />} />
+            <Route path="/carousel" element={<CarouselPage />} />
+          </Routes>
+        </main>
+      </div>
+    </BrowserRouter>
   )
 }
 

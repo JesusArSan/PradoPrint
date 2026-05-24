@@ -1,8 +1,11 @@
 # Makefile para Tienda Prado
 # Órdenes frecuentes de desarrollo
 
+SHELL := /bin/bash
+.SHELLFLAGS := -c
+
 # Marcar targets como "phony" (no son archivos reales)
-.PHONY: help dev dev-backend dev-frontend build start seed seed-if-empty registra studio migrate generate clean clean-productos install test db-up db-down down deploy-migrate setup reset full-clean watch scrapper scrapper-if-missing check-env frontend-install frontend-dev frontend-build front-clean
+.PHONY: help all dev dev-backend dev-frontend build start seed seed-if-empty registra studio migrate generate clean clean-productos install test db-up db-down down deploy-migrate setup reset full-clean watch scrapper scrapper-if-missing check-env frontend-install frontend-dev frontend-build front-clean astro-install astro-dev astro-build astro-preview astro-clean
 
 # Por defecto mostrar ayuda
 .DEFAULT_GOAL := help
@@ -12,6 +15,7 @@ help:
 	@echo "TIENDA PRADO - Comandos disponibles:"
 	@echo ""
 	@echo "Desarrollo:"
+	@echo "  make all              → Backend + SPA + Astro (salida mínima)"
 	@echo "  make dev              → Backend (3000) + SPA (5173) en paralelo"
 	@echo "  make build            → Compilar TypeScript a dist/"
 	@echo "  make start            → Ejecutar versión compilada"
@@ -36,6 +40,12 @@ help:
 	@echo "  make frontend-dev     → Arrancar SPA en localhost:5173 (Vite)"
 	@echo "  make frontend-build   → Build de producción de la SPA"
 	@echo ""
+	@echo "Astro:"
+	@echo "  make astro-install    → Instalar dependencias del sitio Astro"
+	@echo "  make astro-dev        → Arrancar Astro en localhost:4321"
+	@echo "  make astro-build      → Build estático de Astro"
+	@echo "  make astro-preview    → Preview del build de Astro"
+	@echo ""
 	@echo "Despliegue:"
 	@echo "  make setup            → Primera vez: instala todo y arranca"
 	@echo "  make reset            → Borra todo y empieza de nuevo"
@@ -50,15 +60,61 @@ help:
 
 # Desarrollo
 
+all:
+	@if [ ! -f .env ]; then \
+		echo "Error: falta el archivo .env. Ejecuta 'make setup' o copia .env.example a .env" >&2; \
+		exit 1; \
+	fi
+	@if fuser -n tcp 3000 5173 4321 >/dev/null 2>&1; then \
+		echo "Error: algun puerto requerido ya esta ocupado (3000, 5173 o 4321)" >&2; \
+		exit 1; \
+	fi; true
+	@if [ ! -d frontend/node_modules ]; then cd frontend && npm install >/tmp/pradoprint-frontend-install.log 2>&1; fi; true
+	@if [ ! -d astro/node_modules ]; then cd astro && npm install >/tmp/pradoprint-astro-install.log 2>&1; fi; true
+	@docker compose up -d >/tmp/pradoprint-docker.log 2>&1
+	@until docker compose exec -T db pg_isready >/dev/null 2>&1; do sleep 1; done
+	@script -q -e -c "npx prisma migrate deploy" /tmp/pradoprint-prisma-migrate.log >/dev/null
+	@script -q -e -c "npx prisma generate" /tmp/pradoprint-prisma-generate.log >/dev/null
+	@script -q -e -c "npx tsx --env-file=.env scripts/seed-if-empty.ts" /tmp/pradoprint-seed.log >/dev/null
+	@trap 'kill $$BACKEND_PID $$FRONTEND_PID $$ASTRO_PID 2>/dev/null; wait $$BACKEND_PID $$FRONTEND_PID $$ASTRO_PID 2>/dev/null; exit 0' INT TERM; \
+	npm run --silent dev >/tmp/pradoprint-backend.log 2>&1 & BACKEND_PID=$$!; \
+	(cd frontend && npm run --silent dev -- --strictPort >/tmp/pradoprint-frontend.log 2>&1) & FRONTEND_PID=$$!; \
+	(cd astro && npm run --silent dev -- --port 4321 >/tmp/pradoprint-astro.log 2>&1) & ASTRO_PID=$$!; \
+	sleep 4; \
+	if ! kill -0 $$BACKEND_PID $$FRONTEND_PID $$ASTRO_PID 2>/dev/null; then \
+		echo "Error: no se pudieron arrancar todos los servidores. Revisa /tmp/pradoprint-*.log" >&2; \
+		kill $$BACKEND_PID $$FRONTEND_PID $$ASTRO_PID 2>/dev/null; \
+		wait $$BACKEND_PID $$FRONTEND_PID $$ASTRO_PID 2>/dev/null; \
+		exit 1; \
+	fi; \
+	echo "  Paginas disponibles:"; \
+	echo "    Tienda clásica:     http://localhost:3000"; \
+	echo "    SPA Vite React:    http://localhost:5173"; \
+	echo "    Astro SSG:         http://localhost:4321"; \
+	wait $$BACKEND_PID $$FRONTEND_PID $$ASTRO_PID
+
 dev: check-env scrapper-if-missing db-up deploy-migrate seed-if-empty frontend-install
+	@echo ""
 	@echo "Arrancando backend (3000) + frontend (5173)... (Ctrl+C para parar)"
-	@$(MAKE) -j2 --no-print-directory dev-backend dev-frontend
+	@trap 'kill $$BACKEND_PID $$FRONTEND_PID 2>/dev/null; wait $$BACKEND_PID $$FRONTEND_PID 2>/dev/null; exit 0' INT TERM; \
+	$(MAKE) --no-print-directory dev-backend & BACKEND_PID=$$!; \
+	$(MAKE) --no-print-directory dev-frontend & FRONTEND_PID=$$!; \
+	sleep 3; \
+	echo ""; \
+	echo "Servidores desplegados correctamente"; \
+	echo ""; \
+	echo "Paginas disponibles:"; \
+	echo "  Backend / tienda clásica: http://localhost:3000"; \
+	echo "  SPA Vite React:          http://localhost:5173"; \
+	echo "  Astro estático:          http://localhost:4321  (arrancar aparte con 'make astro-dev')"; \
+	echo ""; \
+	wait $$BACKEND_PID $$FRONTEND_PID
 
 dev-backend:
-	@npm run dev
+	@npm run --silent dev
 
 dev-frontend:
-	@cd frontend && npm run dev
+	@cd frontend && npm run --silent dev
 
 # Scraper solo si faltan datos/productos.json o imagenes/
 scrapper-if-missing:
@@ -72,7 +128,8 @@ scrapper-if-missing:
 
 # Seed solo si la BD está vacía (no destruye datos existentes)
 seed-if-empty:
-	@npx tsx --env-file=.env scripts/seed-if-empty.ts
+	@script -q -e -c "npx tsx --env-file=.env scripts/seed-if-empty.ts" /tmp/pradoprint-seed.log >/dev/null
+	@echo "Datos iniciales comprobados"
 
 build:
 	npm run build
@@ -87,21 +144,23 @@ watch: dev
 
 # Arranca la base de datos en Docker
 db-up:
-	docker compose up -d
-	@echo "Esperando a que PostgreSQL arranque..."
-	@sleep 3
+	@docker compose up -d >/dev/null
+	@until docker compose exec -T db pg_isready >/dev/null 2>&1; do sleep 1; done
+	@echo "Base de datos disponible en localhost:5432"
 
 # Para la base de datos
 db-down:
 	docker compose down
 
-# Para todo: servidor Node + base de datos
+# Para todo: servidores de desarrollo + base de datos
 down:
 	@-pkill -f "node.*src/index" 2>/dev/null; true
 	@-pkill -f "tsx.*src/index" 2>/dev/null; true
 	@-pkill -f "vite" 2>/dev/null; true
-	@echo "Servidor Node y Vite parados"
-	@docker compose down
+	@-pkill -f "astro dev" 2>/dev/null; true
+	@docker compose down >/dev/null
+	@echo "Servidores de desarrollo parados"
+	@echo "Base de datos parada"
 	@echo "Todo parado"
 
 
@@ -125,8 +184,9 @@ studio:
 
 # Aplica las migraciones existentes sin crear nuevas (para despliegue)
 deploy-migrate:
-	npx prisma migrate deploy
-	npx prisma generate
+	@script -q -e -c "npx prisma migrate deploy" /tmp/pradoprint-prisma-migrate.log >/dev/null
+	@script -q -e -c "npx prisma generate" /tmp/pradoprint-prisma-generate.log >/dev/null
+	@echo "Migraciones aplicadas y Prisma Client generado"
 
 # Crea y aplica nuevas migraciones (para desarrollo)
 migrate:
@@ -162,7 +222,7 @@ clean:
 	@rm -rf logs/*.log logs/*.json 2>/dev/null || true
 	@echo "Logs limpios"
 
-full-clean: clean front-clean
+full-clean: clean front-clean astro-clean
 	@rm -rf node_modules package-lock.json
 	@echo "node_modules y package-lock.json eliminados"
 
@@ -190,3 +250,27 @@ frontend-build: frontend-install
 front-clean:
 	@rm -rf frontend/node_modules frontend/dist
 	@echo "Frontend limpio"
+
+
+# Astro (sitio estático + React Islands)
+
+astro-install:
+	@if [ ! -d astro/node_modules ]; then \
+		echo "Instalando dependencias de Astro..."; \
+		cd astro && npm install; \
+	else \
+		echo "Dependencias de Astro ya instaladas"; \
+	fi
+
+astro-dev: astro-install
+	cd astro && npm run dev
+
+astro-build: astro-install
+	cd astro && npm run build
+
+astro-preview: astro-install
+	cd astro && npm run preview
+
+astro-clean:
+	@rm -rf astro/node_modules astro/dist astro/.astro
+	@echo "Astro limpio"

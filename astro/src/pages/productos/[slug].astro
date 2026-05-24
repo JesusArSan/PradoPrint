@@ -1,0 +1,47 @@
+---
+import LayoutPrado from '../../layouts/LayoutPrado.astro'
+import productosJson from '../../../../data/productos.json'
+import { imagePath, productSlug, type ProductoJson } from '../../lib/productos'
+
+export async function getStaticPaths() {
+  return (productosJson as ProductoJson[]).map((producto, index) => ({
+    params: { slug: productSlug(producto.título, index) },
+    props: { producto },
+  }))
+}
+
+type Props = {
+  producto: ProductoJson
+}
+
+const { producto } = Astro.props
+---
+
+<LayoutPrado title={`Prado Print | ${producto.título}`}>
+  <article class="grid gap-10 md:grid-cols-2">
+    <div class="flex min-h-96 items-center justify-center bg-stone-100 p-6">
+      <img
+        src={imagePath(producto.imagen)}
+        alt={producto.título}
+        class="max-h-[34rem] max-w-full object-contain"
+      />
+    </div>
+
+    <div class="space-y-6">
+      <a href="/ssg" class="text-sm text-stone-500 hover:text-stone-900">
+        Volver a destacados
+      </a>
+
+      <div class="space-y-3">
+        <h1 class="text-2xl font-bold leading-tight text-stone-900">
+          {producto.título}
+        </h1>
+        <p class="text-lg font-bold text-stone-700">{producto.texto_precio}</p>
+      </div>
+
+      <p class="whitespace-pre-line text-sm leading-7 text-stone-600">
+        {producto.descripción}
+      </p>
+    </div>
+  </article>
+</LayoutPrado>
