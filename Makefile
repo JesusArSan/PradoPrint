@@ -69,13 +69,25 @@ all:
 		echo "Error: algun puerto requerido ya esta ocupado (3000, 5173 o 4321)" >&2; \
 		exit 1; \
 	fi; true
-	@if [ ! -d frontend/node_modules ]; then cd frontend && npm install >/tmp/pradoprint-frontend-install.log 2>&1; fi; true
-	@if [ ! -d astro/node_modules ]; then cd astro && npm install >/tmp/pradoprint-astro-install.log 2>&1; fi; true
+	@if [ ! -d frontend/node_modules ]; then \
+		echo "[1/7] Instalando dependencias del frontend..."; \
+		cd frontend && npm install >/tmp/pradoprint-frontend-install.log 2>&1; \
+	fi; true
+	@if [ ! -d astro/node_modules ]; then \
+		echo "[1/7] Instalando dependencias de Astro..."; \
+		cd astro && npm install >/tmp/pradoprint-astro-install.log 2>&1; \
+	fi; true
+	@echo "[1/7] Arrancando base de datos..."
 	@docker compose up -d >/tmp/pradoprint-docker.log 2>&1
+	@echo "[2/7] Esperando a PostgreSQL..."
 	@until docker compose exec -T db pg_isready >/dev/null 2>&1; do sleep 1; done
+	@echo "[3/7] Aplicando migraciones..."
 	@script -q -e -c "npx prisma migrate deploy" /tmp/pradoprint-prisma-migrate.log >/dev/null
+	@echo "[4/7] Generando Prisma Client..."
 	@script -q -e -c "npx prisma generate" /tmp/pradoprint-prisma-generate.log >/dev/null
+	@echo "[5/7] Comprobando datos iniciales..."
 	@script -q -e -c "npx tsx --env-file=.env scripts/seed-if-empty.ts" /tmp/pradoprint-seed.log >/dev/null
+	@echo "[6/7] Lanzando servidores..."
 	@trap 'kill $$BACKEND_PID $$FRONTEND_PID $$ASTRO_PID 2>/dev/null; wait $$BACKEND_PID $$FRONTEND_PID $$ASTRO_PID 2>/dev/null; exit 0' INT TERM; \
 	npm run --silent dev >/tmp/pradoprint-backend.log 2>&1 & BACKEND_PID=$$!; \
 	(cd frontend && npm run --silent dev -- --strictPort >/tmp/pradoprint-frontend.log 2>&1) & FRONTEND_PID=$$!; \
@@ -87,10 +99,12 @@ all:
 		wait $$BACKEND_PID $$FRONTEND_PID $$ASTRO_PID 2>/dev/null; \
 		exit 1; \
 	fi; \
+	echo "[7/7] Todo listo. Ctrl+C para parar."; \
+	echo ""; \
 	echo "  Paginas disponibles:"; \
-	echo "    Tienda clásica:     http://localhost:3000"; \
-	echo "    SPA Vite React:    http://localhost:5173"; \
-	echo "    Astro SSG:         http://localhost:4321"; \
+	echo "    Tienda clasica:    http://localhost:3000"; \
+	echo "    SPA Vite React:   http://localhost:5173"; \
+	echo "    Astro SSG:        http://localhost:4321"; \
 	wait $$BACKEND_PID $$FRONTEND_PID $$ASTRO_PID
 
 dev: check-env scrapper-if-missing db-up deploy-migrate seed-if-empty frontend-install
