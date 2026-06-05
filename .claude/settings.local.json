@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(timeout 8 npx vite --port 5173)",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" http://localhost:3000/api/cuadros/random)",
+      "Bash(make -n frontend-dev)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(pkill -9 -f \"tsx.*src/index\")",
+      "Bash(pkill -9 -f \"vite\")",
+      "Bash(pkill -9 -f \"make dev\")",
+      "Bash(timeout 8 make dev)",
+      "Bash(echo \"exit=$?\")"
+    ]
+  }
+}
