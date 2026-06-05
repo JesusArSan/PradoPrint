@@ -16,8 +16,8 @@ async function main() {
   }
 
   logger.info('BD vacía, ejecutando seed y registra...');
-  execSync('npm run seed', { stdio: 'inherit' });
-  execSync('npm run registra', { stdio: 'inherit' });
+  execSync('npx tsx scripts/seed.ts', { stdio: 'inherit' });
+  execSync('npx tsx scripts/registra_usuarios.ts', { stdio: 'inherit' });
 }
 
 main();

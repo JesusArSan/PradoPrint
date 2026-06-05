@@ -19,6 +19,8 @@ import apiCarritoRouter from './apis/carrito';
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 nunjucks.configure('src/views', {
   autoescape: true,
   express: app,
@@ -38,7 +40,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: env.isProduction,
+      secure: env.isProduction ? 'auto' : false,
       sameSite: 'lax',
       httpOnly: true,
     },
